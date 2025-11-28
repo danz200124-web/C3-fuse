@@ -1,0 +1,50 @@
+# Loss configuration for C3-Fuse training
+
+# Segmentation loss
+segmentation:
+  ce_weight: 1.0
+  dice_weight: 1.0
+  focal_alpha: 0.25
+  focal_gamma: 2.0
+  class_weights: null  # Auto-compute from dataset
+
+# Cross-modal contrastive loss
+contrastive:
+  temperature: 0.07
+  margin: 0.5
+  num_negatives: 256
+  hard_negative_mining: true
+
+# Projection consistency loss
+projection:
+  # 3D -> 2D
+  forward_weight: 1.0
+  # 2D -> 3D (lifting)
+  backward_weight: 1.0
+  ignore_unlabeled: true
+
+# Geometric plane consistency loss
+geometric:
+  # Point-to-plane distance
+  point2plane_weight: 1.0
+  # Normal smoothness
+  normal_smooth_weight: 0.1
+  # Min points per plane for valid loss
+  min_points_per_plane: 50
+
+# Gate regularization
+gate:
+  # Entropy regularization (encourage decisiveness)
+  entropy_weight: 1.0
+  # Sparsity (optional, encourage using fewer gates)
+  sparsity_weight: 0.05
+  # Balance regularization (prevent mode collapse)
+  balance_weight: 0.1
+
+# Total loss weights (multiplied with above)
+weights:
+  seg: 1.0
+  cm: 1.0
+  proj: 0.5
+  geo: 0.5
+  gate: 0.1

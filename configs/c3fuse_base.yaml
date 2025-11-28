@@ -1,0 +1,121 @@
+# C3-Fuse Base Configuration
+# Core fusion network with cross-attention + cylindrical BEV + gating
+
+model:
+  # Image backbone
+  img_backbone:
+    type: resnet50
+    pretrained: true
+    frozen_stages: 1
+    out_channels: [256, 512, 1024, 2048]
+
+  # Point cloud backbone
+  pcd_backbone:
+    type: point_transformer
+    in_channels: 3  # XYZ
+    base_channels: 32
+    num_stages: 4
+    out_channels: 256
+
+  # Fusion module
+  fusion:
+    # Cross-attention path
+    cross_attn:
+      enabled: true
+      num_layers: 3
+      num_heads: 4
+      hidden_dim: 256
+      dropout: 0.1
+      # Projection sampling
+      k_neighbors: 5  # Number of pixel neighbors per point
+      top_k_views: 3  # Max visible views per point
+      # Geometric bias
+      use_geo_bias: true
+      bias_dim: 16
+
+    # Cylindrical BEV path
+    unified_space:
+      type: cylindrical_bev
+      enabled: true
+      grid:
+        radial_bins: 128
+        theta_bins: 256
+        z_bins: 64
+        r_min: 0.0
+        r_max: 50.0
+        z_min: -10.0
+        z_max: 10.0
+      pooling: max  # max or avg
+      interp_mode: bilinear
+
+    # Gating fusion
+    gate:
+      enabled: true
+      input_dim: 256
+      hidden_dim: 128
+      use_confidence: true  # Use modal confidence
+
+  # Segmentation head
+  seg_head:
+    num_classes: 2  # Background + structural planes
+    hidden_dims: [256, 128, 64]
+    dropout: 0.3
+
+# Loss weights
+loss:
+  w_seg: 1.0        # Segmentation (CE + Dice)
+  w_cm: 1.0         # Cross-modal contrastive
+  w_proj: 0.5       # Projection consistency
+  w_plane: 0.5      # Geometric plane consistency
+  w_gate: 0.1       # Gate regularization
+
+  # Temperature for contrastive loss
+  temperature: 0.07
+
+  # Plane loss regularization
+  lambda_smooth: 0.1
+  lambda_sparse: 0.05
+
+# Training hyperparameters
+train:
+  batch_size: 4
+  epochs: 120
+  base_lr: 1.0e-4
+  warmup_epochs: 5
+  optimizer: adamw
+  weight_decay: 0.01
+  grad_clip: 5.0
+
+  # Learning rate schedule
+  lr_scheduler:
+    type: cosine
+    min_lr: 1.0e-6
+
+  # Mixed precision
+  use_amp: true
+
+  # Multi-scale augmentation
+  multiscale: [1.0, 0.75, 0.5, 0.25]
+
+# Validation
+val:
+  batch_size: 1
+  interval: 5  # Validate every N epochs
+  metrics: [miou, f1, acc]
+
+# Data augmentation
+augmentation:
+  # Image augmentation
+  image:
+    random_brightness: 0.2
+    random_contrast: 0.2
+    random_saturation: 0.2
+    random_hue: 0.1
+    random_flip: 0.5
+
+  # Point cloud augmentation
+  pointcloud:
+    random_rotation: 10  # degrees
+    random_scale: [0.95, 1.05]
+    random_jitter: 0.01
+    random_dropout: 0.1

@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir:*)",
+      "Bash(tree:*)",
+      "Bash(find:*)",
+      "Bash(conda:*)",
+      "Bash(nvidia-smi:*)",
+      "Bash(timeout /t 10)",
+      "Bash(pip install:*)",
+      "Bash(pip:*)",
+      "Bash(python:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
