@@ -1,17 +1,13 @@
 {
   "permissions": {
     "allow": [
-      "Bash(mkdir:*)",
-      "Bash(tree:*)",
-      "Bash(find:*)",
-      "Bash(conda:*)",
-      "Bash(nvidia-smi:*)",
-      "Bash(timeout /t 10)",
+      "Bash(conda create:*)",
+      "Bash(conda run:*)",
+      "Bash(D:\\\\anaconda3\\\\envs\\\\c3fuse\\\\python.exe -m pip install:*)",
+      "Bash(conda activate:*)",
       "Bash(pip install:*)",
-      "Bash(pip:*)",
-      "Bash(python:*)"
-    ],
-    "deny": [],
-    "ask": []
+      "Bash(conda install:*)",
+      "Bash(nvidia-smi:*)"
+    ]
   }
 }
